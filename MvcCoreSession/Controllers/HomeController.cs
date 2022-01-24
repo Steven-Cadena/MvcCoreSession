@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MvcCoreSession.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MvcCoreSession.Helpers;
@@ -28,19 +29,15 @@ namespace MvcCoreSession.Controllers
                 persona.Nombre = "Almuno";
                 persona.Edad = 22;
                 persona.Hora = DateTime.Now.ToLongTimeString();
-                //MEDIANTE EL HELPER CONVERTIMOS EL OBHJETO PERSONA A Stirng JSON
-                string data = HelperSession.SerializeObject(persona);
-                //ALMACENAMOS EL OBJETO COMO STRING EN SESSION
-                HttpContext.Session.SetString("PERSONA", data);
+                //ALMACENAMOS EL OBJETO EN SESSION 
+                HttpContext.Session.SetObject("PERSONA",persona);
 
                 ViewData["MENSAJE"] = "Datos almacenados en Session.";
             }
             else if (accion == "mostrar") 
             {
-                //EXTRAEMOS LA INFORMACION DE STRING JSON DE SESSION
-                string data = HttpContext.Session.GetString("PERSONA");
-                //CONVERTIMOS EL JSON A OBJETO
-                Persona persona =HelperSession.DeserializeObject<Persona>(data);
+                Persona persona =
+                    HttpContext.Session.GetObject<Persona>("PERSONA");
                 ViewData["usuario"] = persona.Nombre + ", Edad: " + persona.Edad;
                 ViewData["hora"] = persona.Hora;
             }
@@ -58,9 +55,9 @@ namespace MvcCoreSession.Controllers
                 };
                 List<int> numeros =
                     new List<int> { 4, 5, 6, 7, 8, 8, 99 };
-                string jsonnumeros =
-                    HelperSession.SerializeObject(numeros);
-                HttpContext.Session.SetString("NUMEROS", jsonnumeros);
+
+                HttpContext.Session.SetObject("NUMEROS", numeros);
+                HttpContext.Session.SetObject("PERSONAS", personas);
 
                 string data  = HelperSession.SerializeObject(personas);
                 HttpContext.Session.SetString("PERSONAS", data);
@@ -69,9 +66,8 @@ namespace MvcCoreSession.Controllers
             }
             else if (accion == "mostrar") 
             {
-                string data = HttpContext.Session.GetString("PERSONAS");
                 List<Persona> personas = 
-                    HelperSession.DeserializeObject<List<Persona>>(data);
+                    HttpContext.Session.GetObject<List<Persona>>("PERSONAS");
                 return View(personas);
             }
             return View();
